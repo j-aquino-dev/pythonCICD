@@ -4,10 +4,10 @@
 name: Python application
 
 on:
-  #push:
-  #  branches: [ master ]
-  pull_request:
+  push:
     branches: [ master ]
+  #pull_request:
+  #  branches: [ master ]
 
 jobs:
   build:
@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - run: |
+        git fetch --prune --unshallow
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -35,3 +37,9 @@ jobs:
       run: |
         export PYTHONPATH=src
         pytest
+    - name: Deploy to Heroku
+      env: 
+        HEROKU_TOKEN: ${{ secrets.HEROKU_TOKEN }}
+      run: |
+        git remote add heroku https://heroku:$HEROKU_TOKEN@git.heroku.com/mysterious-reaches-11930.git
+        git push heroku HEAD:master
